@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venkata Bhargav Devarampati — Backend Engineer</title>
+<meta name="description" content="Backend Software Engineer specializing in Django, real-time telemetry systems, and network automation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14;
+    --bg-raised:#10151d;
+    --surface:#151b24;
+    --border:#232b37;
+    --border-bright:#2f3a4a;
+    --text:#e6e8eb;
+    --text-dim:#8b93a1;
+    --text-faint:#5a6270;
+    --signal:#7dd3c0;
+    --signal-dim:#4a9384;
+    --accent:#5b8def;
+    --warn:#e0a850;
+    --shadow:rgba(0,0,0,0.6);
+    --blur-bg:rgba(10,14,20,0.72);
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --sans:'Inter', -apple-system, sans-serif;
+    color-scheme: dark;
+  }
+
+  html[data-font="alt"]{
+    --mono:'Space Mono', ui-monospace, monospace;
+    --sans:'Space Grotesk', -apple-system, sans-serif;
+  }
+
+  html[data-theme="light"]{
+    --bg:#f7f8f9;
+    --bg-raised:#eef0f2;
+    --surface:#ffffff;
+    --border:#dde1e6;
+    --border-bright:#c7cdd5;
+    --text:#161a20;
+    --text-dim:#525a66;
+    --text-faint:#8991a0;
+    --signal:#0f8f77;
+    --signal-dim:#0c7361;
+    --accent:#2f5fd6;
+    --warn:#a8710f;
+    --shadow:rgba(20,25,35,0.10);
+    --blur-bg:rgba(247,248,249,0.78);
+    color-scheme: light;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    transition:background 0.25s ease, color 0.25s ease;
+  }
+
+  /* subtle background grid, like a scope/panel */
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:0.15;
+    pointer-events:none;
+    z-index:0;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  ::selection{background:var(--signal); color:var(--bg);}
+
+  /* ---------- layout shell ---------- */
+  .rail{
+    position:fixed;
+    top:0; left:0;
+    width:56px;
+    height:100vh;
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding:24px 0;
+    z-index:50;
+    background:var(--blur-bg);
+    backdrop-filter:blur(8px);
+  }
+  .rail .status-dot{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--signal);
+    box-shadow:0 0 8px var(--signal);
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:0.4;}
+  }
+  .rail .vertical-text{
+    writing-mode:vertical-rl;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:0.12em;
+    color:var(--text-faint);
+  }
+  .rail .vertical-text .live{color:var(--signal);}
+
+  main{margin-left:56px;}
+  @media (max-width:720px){
+    .rail{display:none;}
+    main{margin-left:0;}
+  }
+
+  .wrap{
+    max-width:760px;
+    margin:0 auto;
+    padding:0 28px;
+    position:relative;
+    z-index:1;
+  }
+
+  section{padding:96px 0;}
+  @media (max-width:720px){ section{padding:64px 0;} }
+
+  .section-label{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--signal);
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-label::before{
+    content:'';
+    width:16px; height:1px;
+    background:var(--signal-dim);
+  }
+
+  h2{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:26px;
+    letter-spacing:-0.01em;
+    margin-bottom:36px;
+    color:var(--text);
+  }
+
+  /* ---------- nav ---------- */
+  header.topnav{
+    position:fixed;
+    top:0; left:56px; right:0;
+    z-index:40;
+    background:var(--blur-bg);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  @media (max-width:720px){ header.topnav{left:0;} }
+  .topnav-inner{
+    max-width:760px;
+    margin:0 auto;
+    padding:16px 28px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .brand{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:14.5px;
+    color:var(--text);
+  }
+  .brand .dot{color:var(--signal);}
+  .navlinks{
+    display:flex;
+    gap:24px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .navlinks a{transition:color 0.15s;}
+  .navlinks a:hover{color:var(--signal);}
+
+  /* ---------- theme toggle ---------- */
+  .theme-toggle{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:34px;
+    height:34px;
+    border-radius:7px;
+    border:1px solid var(--border-bright);
+    background:transparent;
+    color:var(--text-dim);
+    cursor:pointer;
+    transition:border-color 0.15s, color 0.15s;
+    flex-shrink:0;
+  }
+  .theme-toggle:hover{border-color:var(--signal); color:var(--signal);}
+  .theme-toggle svg{width:16px; height:16px;}
+  .theme-toggle .icon-moon{display:none;}
+  html[data-theme="light"] .theme-toggle .icon-sun{display:none;}
+  html[data-theme="light"] .theme-toggle .icon-moon{display:block;}
+
+  .nav-right{display:flex; align-items:center; gap:18px;}
+
+  /* ---------- font dropdown ---------- */
+  .font-picker{
+    position:relative;
+  }
+  .font-picker-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    height:34px;
+    padding:0 12px;
+    border-radius:7px;
+    border:1px solid var(--border-bright);
+    background:transparent;
+    color:var(--text-dim);
+    font-family:var(--mono);
+    font-size:11.5px;
+    cursor:pointer;
+    transition:border-color 0.15s, color 0.15s;
+  }
+  .font-picker-btn:hover{border-color:var(--signal); color:var(--signal);}
+  .font-picker-btn svg{width:12px; height:12px; transition:transform 0.15s;}
+  .font-picker.open .font-picker-btn svg{transform:rotate(180deg);}
+
+  .font-menu{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    min-width:180px;
+    background:var(--surface);
+    border:1px solid var(--border-bright);
+    border-radius:9px;
+    padding:6px;
+    box-shadow:0 12px 32px -10px var(--shadow);
+    opacity:0;
+    transform:translateY(-6px);
+    pointer-events:none;
+    transition:opacity 0.15s, transform 0.15s;
+    z-index:70;
+  }
+  .font-picker.open .font-menu{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+  .font-option{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    width:100%;
+    text-align:left;
+    padding:9px 10px;
+    border-radius:6px;
+    background:transparent;
+    border:none;
+    cursor:pointer;
+    color:var(--text);
+  }
+  .font-option:hover{background:var(--bg-raised);}
+  .font-option .fo-name{font-size:13px; font-weight:600;}
+  .font-option .fo-sample{font-size:11px; color:var(--text-faint);}
+  .font-option.active .fo-name{color:var(--signal);}
+  .font-option.active .fo-name::after{content:' ✓';}
+
+  @media (max-width:600px){ .font-picker{display:none;} }
+
+  /* ---------- mobile menu button ---------- */
+  .menu-toggle{
+    display:none;
+    width:34px;
+    height:34px;
+    border-radius:7px;
+    border:1px solid var(--border-bright);
+    background:transparent;
+    color:var(--text);
+    cursor:pointer;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .menu-toggle svg{width:16px; height:16px;}
+
+  .mobile-menu{
+    display:none;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:var(--bg);
+    z-index:60;
+    flex-direction:column;
+    padding:20px 28px;
+  }
+  .mobile-menu.open{display:flex;}
+  .mobile-menu-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:48px;
+  }
+  .mobile-menu nav{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .mobile-menu nav a{
+    font-family:var(--mono);
+    font-size:22px;
+    font-weight:600;
+    color:var(--text);
+    padding:16px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .mobile-menu .mm-footer{
+    margin-top:auto;
+    display:flex;
+    gap:14px;
+  }
+  .mobile-menu .mm-footer a{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--text-dim);
+    border:1px solid var(--border-bright);
+    padding:10px 16px;
+    border-radius:6px;
+  }
+  .mm-font-row{
+    margin-top:32px;
+    padding-top:20px;
+    border-top:1px solid var(--border);
+  }
+  .mm-font-label{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--text-faint);
+    display:block;
+    margin-bottom:10px;
+  }
+  .mm-font-options{display:flex; gap:10px; flex-wrap:wrap;}
+  .mm-font-opt{
+    font-family:var(--sans);
+    font-size:13px;
+    color:var(--text-dim);
+    background:transparent;
+    border:1px solid var(--border-bright);
+    padding:9px 14px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .mm-font-opt.active{color:var(--signal); border-color:var(--signal-dim);}
+
+  @media (max-width:600px){
+    .navlinks{display:none;}
+    .menu-toggle{display:flex;}
+  }
+
+  /* ---------- hero / terminal ---------- */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-top:80px;
+  }
+
+  .terminal{
+    background:var(--surface);
+    border:1px solid var(--border-bright);
+    border-radius:8px;
+    overflow:hidden;
+    box-shadow:0 20px 60px -20px var(--shadow);
+    margin-bottom:40px;
+  }
+  .terminal-bar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 16px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-raised);
+    flex-wrap:nowrap;
+    overflow:hidden;
+  }
+  .terminal-dots{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex-shrink:0;
+  }
+  .terminal-dots span{width:11px;height:11px;border-radius:50%;display:block; flex-shrink:0;}
+  .terminal-bar .path{
+    margin-left:10px;
+    padding-left:12px;
+    border-left:1px solid var(--border-bright);
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--text-faint);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .terminal-body{
+    padding:22px 24px 26px;
+    font-family:var(--mono);
+    font-size:14px;
+    line-height:1.85;
+    min-height:168px;
+  }
+  .terminal-body .line{color:var(--text-dim);}
+  .terminal-body .prompt{color:var(--signal);}
+  .terminal-body .out-key{color:var(--text-faint);}
+  .terminal-body .out-val{color:var(--text);}
+  .cursor{
+    display:inline-block;
+    width:8px; height:16px;
+    background:var(--signal);
+    margin-left:2px;
+    vertical-align:text-bottom;
+    animation:blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{opacity:0;} }
+
+  .hero h1{
+    font-family:var(--mono);
+    font-size:clamp(28px, 5.2vw, 44px);
+    font-weight:800;
+    line-height:1.15;
+    letter-spacing:-0.02em;
+    margin-bottom:16px;
+  }
+  html[data-font="alt"] .hero h1{
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .hero h1 .accent{color:var(--signal);}
+  .hero p.lede{
+    font-size:17px;
+    color:var(--text-dim);
+    max-width:56ch;
+    margin-bottom:28px;
+  }
+  .hero-cta{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:var(--mono);
+    font-size:13px;
+    font-weight:600;
+    padding:12px 20px;
+    border-radius:6px;
+    border:1px solid var(--border-bright);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:border-color 0.15s, background 0.15s, transform 0.15s;
+    cursor:pointer;
+    background:transparent;
+    color:var(--text);
+  }
+  .btn:hover{border-color:var(--signal); transform:translateY(-1px);}
+  .btn.primary{
+    background:var(--signal);
+    color:var(--bg);
+    border-color:var(--signal);
+  }
+  .btn.primary:hover{background:var(--signal-dim); border-color:var(--signal-dim);}
+
+  /* ---------- stats strip ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+  }
+  .stats .stat{
+    padding:24px 20px;
+    border-right:1px solid var(--border);
+  }
+  .stats .stat:last-child{border-right:none;}
+  .stats .stat .num{
+    font-family:var(--mono);
+    font-size:24px;
+    font-weight:700;
+    color:var(--signal);
+  }
+  .stats .stat .lbl{
+    font-size:11.5px;
+    color:var(--text-faint);
+    margin-top:4px;
+  }
+  @media (max-width:600px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .stats .stat:nth-child(2){border-right:none;}
+  }
+
+  /* ---------- about ---------- */
+  .about-grid{
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:48px;
+  }
+  @media (max-width:680px){ .about-grid{grid-template-columns:1fr;} }
+  .about-text p{color:var(--text-dim); margin-bottom:16px; font-size:15px;}
+  .about-text strong{color:var(--text); font-weight:600;}
+
+  .stack-list{display:flex; flex-direction:column; gap:2px;}
+  .stack-row{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+  }
+  .stack-row .k{color:var(--text-faint); font-family:var(--mono); font-size:11.5px;}
+  .stack-row .v{color:var(--text); text-align:right;}
+
+  /* ---------- experience ---------- */
+  .job{
+    border-left:2px solid var(--border);
+    padding-left:24px;
+    padding-bottom:36px;
+    position:relative;
+  }
+  .job:last-child{padding-bottom:0;}
+  .job::before{
+    content:'';
+    position:absolute;
+    left:-6.5px; top:4px;
+    width:11px; height:11px;
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--signal);
+  }
+  .job-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:6px;
+  }
+  .job-title{font-weight:600; font-size:16px; color:var(--text);}
+  .job-date{font-family:var(--mono); font-size:12px; color:var(--signal);}
+  .job-org{color:var(--text-dim); font-size:13.5px; margin-bottom:12px;}
+  .job ul{list-style:none;}
+  .job li{
+    color:var(--text-dim);
+    font-size:14.5px;
+    padding-left:18px;
+    position:relative;
+    margin-bottom:8px;
+  }
+  .job li::before{
+    content:'▸';
+    position:absolute; left:0; top:0;
+    color:var(--signal-dim);
+    font-size:12px;
+  }
+
+  /* ---------- projects ---------- */
+  .projects{
+    display:flex;
+    flex-direction:column;
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+  }
+  .proj{
+    background:var(--surface);
+    padding:26px 26px;
+    transition:background 0.2s;
+  }
+  .proj:hover{background:var(--bg-raised);}
+  .proj-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:8px;
+  }
+  .proj-name{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:16px;
+    color:var(--text);
+  }
+  .proj-link{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text-faint);
+    border:1px solid var(--border-bright);
+    border-radius:5px;
+    padding:5px 10px;
+    white-space:nowrap;
+    transition:color 0.15s, border-color 0.15s;
+    flex-shrink:0;
+  }
+  .proj-link:hover{color:var(--signal); border-color:var(--signal);}
+  .proj-desc{color:var(--text-dim); font-size:14.5px; margin-bottom:14px; max-width:60ch;}
+  .proj-tags{display:flex; flex-wrap:wrap; gap:8px;}
+  .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    color:var(--signal);
+    background:color-mix(in srgb, var(--signal) 10%, transparent);
+    border:1px solid color-mix(in srgb, var(--signal) 30%, transparent);
+    padding:3px 9px;
+    border-radius:4px;
+  }
+
+  /* ---------- coding platforms ---------- */
+  .platforms{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+  }
+  @media (max-width:640px){ .platforms{grid-template-columns:1fr;} }
+  .platform-card{
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:22px;
+    background:var(--surface);
+    transition:border-color 0.2s, transform 0.2s;
+    display:block;
+  }
+  .platform-card:hover{border-color:var(--border-bright); transform:translateY(-2px);}
+  .platform-card .p-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .platform-card .p-name{font-family:var(--mono); font-weight:700; font-size:14.5px;}
+  .platform-card .p-status{
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--signal);
+    border:1px solid var(--signal-dim);
+    border-radius:20px;
+    padding:2px 9px;
+  }
+  .platform-card .p-desc{color:var(--text-dim); font-size:13px; margin-bottom:14px;}
+  .platform-card .p-visit{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--text-faint);
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:color 0.15s;
+  }
+  .platform-card:hover .p-visit{color:var(--signal);}
+
+  /* ---------- contact ---------- */
+  .contact-card{
+    border:1px solid var(--border-bright);
+    border-radius:12px;
+    background:linear-gradient(180deg, var(--surface), var(--bg-raised));
+    padding:40px 32px;
+    text-align:center;
+  }
+  .contact-card h2{
+    justify-content:center;
+    margin-bottom:12px;
+  }
+  .contact-card > p{
+    color:var(--text-dim);
+    max-width:48ch;
+    margin:0 auto 30px;
+    font-size:15px;
+  }
+  .contact-rows{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    max-width:440px;
+    margin:0 auto 26px;
+  }
+  .copy-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px 16px;
+    background:var(--bg);
+    font-family:var(--mono);
+    font-size:13.5px;
+    cursor:pointer;
+    transition:border-color 0.15s;
+  }
+  .copy-row:hover{border-color:var(--signal-dim);}
+  .copy-row .cr-label{color:var(--text-faint); font-size:11px;}
+  .copy-row .cr-value{color:var(--text); text-align:left;}
+  .copy-row .cr-left{display:flex; flex-direction:column; align-items:flex-start; gap:2px; overflow:hidden;}
+  .copy-row .cr-value{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:260px;}
+  .copy-row .cr-btn{
+    font-size:11px;
+    color:var(--signal);
+    flex-shrink:0;
+    padding-left:12px;
+  }
+  .social-row{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+  }
+  .social-row a{
+    font-family:var(--mono);
+    font-size:12.5px;
+    border:1px solid var(--border-bright);
+    padding:10px 18px;
+    border-radius:6px;
+    transition:border-color 0.15s, color 0.15s;
+  }
+  .social-row a:hover{border-color:var(--signal); color:var(--signal);}
+
+  footer{
+    padding:32px 0 48px;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:11.5px;
+    color:var(--text-faint);
+  }
+
+  .toast{
+    position:fixed;
+    bottom:28px;
+    right:28px;
+    background:var(--signal);
+    color:var(--bg);
+    font-family:var(--mono);
+    font-size:13px;
+    font-weight:600;
+    padding:11px 20px;
+    border-radius:7px;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(12px);
+    transition:opacity 0.25s, transform 0.25s;
+    z-index:100;
+    box-shadow:0 8px 24px -8px var(--shadow);
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateY(0);
+  }
+  @media (max-width:420px){
+    .toast{right:16px; bottom:20px; left:16px; text-align:center;}
+  }
+
+  a:focus-visible, button:focus-visible, .copy-row:focus-visible{
+    outline:2px solid var(--signal);
+    outline-offset:2px;
+  }
+
+  /* ---------- small-phone tightening (≤ 420px) ---------- */
+  @media (max-width:420px){
+    .wrap{padding:0 18px;}
+    .topnav-inner{padding:14px 18px;}
+    .hero{padding-top:72px;}
+    .terminal-body{padding:18px 16px 20px; font-size:12.5px;}
+    .hero h1{font-size:26px;}
+    .hero p.lede{font-size:15.5px;}
+    .btn{padding:11px 16px; font-size:12px;}
+    .stats .stat{padding:18px 12px;}
+    .stats .stat .num{font-size:19px;}
+    .contact-card{padding:32px 18px;}
+    .copy-row{padding:11px 13px;}
+    .copy-row .cr-value{max-width:170px; font-size:12.5px;}
+    .social-row{flex-wrap:wrap; gap:10px;}
+    .social-row a{padding:9px 14px; font-size:12px;}
+    .proj{padding:20px 18px;}
+    .job{padding-left:18px;}
+  }
+
+  /* ---------- laptop / narrow-desktop check (720–1024px) ---------- */
+  @media (min-width:721px) and (max-width:1024px){
+    .wrap{max-width:700px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="rail">
+  <span class="status-dot" aria-hidden="true"></span>
+  <span class="vertical-text">AVAILABLE FOR WORK · <span class="live">STATUS: OPEN</span></span>
+  <span style="font-family:var(--mono); font-size:9px; color:var(--text-faint); writing-mode:vertical-rl;">BLR, IN</span>
+</div>
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <div class="brand">bhargav<span class="dot">.</span>dev</div>
+    <div class="nav-right">
+      <nav class="navlinks">
+        <a href="#about">about</a>
+        <a href="#experience">experience</a>
+        <a href="#projects">projects</a>
+        <a href="#platforms">practice</a>
+        <a href="#contact">contact</a>
+      </nav>
+      <div class="font-picker" id="fontPicker">
+        <button class="font-picker-btn" id="fontPickerBtn" aria-haspopup="true" aria-expanded="false">
+          <span id="fontPickerLabel">Mono</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="font-menu" id="fontMenu" role="menu">
+          <button class="font-option active" data-font="default" role="menuitem">
+            <span class="fo-name">JetBrains Mono</span>
+            <span class="fo-sample">+ Inter — default</span>
+          </button>
+          <button class="font-option" data-font="alt" role="menuitem">
+            <span class="fo-name">Space Mono</span>
+            <span class="fo-sample">+ Space Grotesk</span>
+          </button>
+        </div>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle light and dark theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu-top">
+    <div class="brand">bhargav<span class="dot">.</span>dev</div>
+    <button class="menu-toggle" id="menuClose" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <nav>
+    <a href="#about">about</a>
+    <a href="#experience">experience</a>
+    <a href="#projects">projects</a>
+    <a href="#platforms">practice</a>
+    <a href="#contact">contact</a>
+  </nav>
+  <div class="mm-font-row">
+    <span class="mm-font-label">Font</span>
+    <div class="mm-font-options">
+      <button class="mm-font-opt active" data-font="default">JetBrains Mono</button>
+      <button class="mm-font-opt" data-font="alt">Space Grotesk</button>
+    </div>
+  </div>
+  <div class="mm-footer">
+    <a href="https://github.com/DevBhargav07" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://www.linkedin.com/in/venkata-bhargav-devarampati-5b3563233/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+
+    <section class="hero">
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="terminal-dots">
+            <span style="background:#e0605c;"></span>
+            <span style="background:#e0a850;"></span>
+            <span style="background:#5fb87a;"></span>
+          </div>
+          <span class="path">bhargav@backend:~</span>
+        </div>
+        <div class="terminal-body" id="termBody">
+          <div class="line"><span class="prompt">$</span> whoami</div>
+        </div>
+      </div>
+
+      <h1>Backend systems that hold up<br>under <span class="accent">real load.</span></h1>
+      <p class="lede">
+        I'm Bhargav — a backend software engineer building APIs, real-time telemetry
+        pipelines, and infrastructure automation with Python and Django.
+        Currently at Invendis Technologies, Bengaluru.
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn primary">View projects</a>
+        <a href="resume.pdf" class="btn" download>Download résumé</a>
+        <a href="#contact" class="btn">Get in touch</a>
+      </div>
+    </section>
+
+    <div class="stats">
+      <div class="stat"><div class="num">2+</div><div class="lbl">years experience</div></div>
+      <div class="stat"><div class="num">500+</div><div class="lbl">devices in prod</div></div>
+      <div class="stat"><div class="num">85%</div><div class="lbl">test coverage</div></div>
+      <div class="stat"><div class="num">3</div><div class="lbl">platforms training</div></div>
+    </div>
+
+    <section id="about">
+      <div class="section-label">ABOUT</div>
+      <h2>Currently building</h2>
+      <div class="about-grid">
+        <div class="about-text">
+          <p>
+            I'm a backend software engineer with <strong>2+ years of professional experience</strong>
+            at Invendis Technologies India, where I design and ship production
+            web applications in <strong>Python and Django</strong>. My day-to-day is
+            RESTful API design, database schema work, and the plumbing that keeps
+            distributed systems reliable.
+          </p>
+          <p>
+            A lot of my recent work has centered on a <strong>real-time IoT monitoring platform</strong> —
+            handling telemetry from 500+ connected devices over <strong>MQTT</strong>, with
+            Celery and Redis doing the heavy lifting on background processing and caching.
+            I've also automated <strong>OpenVPN certificate provisioning</strong> end-to-end
+            with Python and Bash, cutting new environment setup from hours to minutes.
+          </p>
+          <p>
+            Outside of work, I'm sharpening algorithmic problem-solving on
+            HackerRank, LeetCode, and NeetCode, and exploring FastAPI, SQLAlchemy,
+            JWT auth, and the fundamentals of machine learning with Pandas and NumPy.
+          </p>
+        </div>
+        <div class="stack-list">
+          <div class="stack-row"><span class="k">LANG</span><span class="v">Python, SQL, JavaScript</span></div>
+          <div class="stack-row"><span class="k">BACKEND</span><span class="v">Django, DRF, Gunicorn</span></div>
+          <div class="stack-row"><span class="k">DATA</span><span class="v">MySQL, Redis</span></div>
+          <div class="stack-row"><span class="k">MESSAGING</span><span class="v">MQTT, Celery, WebSockets</span></div>
+          <div class="stack-row"><span class="k">INFRA</span><span class="v">Linux, Nginx, OpenVPN</span></div>
+          <div class="stack-row"><span class="k">TOOLS</span><span class="v">Git, Postman</span></div>
+          <div class="stack-row"><span class="k">LEARNING</span><span class="v">FastAPI, SQLAlchemy, Docker</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="section-label">EXPERIENCE</div>
+      <h2>Where I've worked</h2>
+
+      <div class="job">
+        <div class="job-head">
+          <span class="job-title">Software Engineer</span>
+          <span class="job-date">MAY 2025 — PRESENT</span>
+        </div>
+        <div class="job-org">Invendis Technologies India Pvt. Ltd. · Bengaluru</div>
+        <ul>
+          <li>Built a real-time IoT monitoring platform in Django/DRF handling telemetry from 500+ devices, with API latency under 200ms.</li>
+          <li>Optimised MySQL schemas and added Celery/Redis pipelines, boosting query performance by 40% and API responsiveness by ~35%.</li>
+          <li>Implemented MQTT-based messaging and role-based access control with 3+ permission tiers, improving data reliability and securing multi-user access.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="job-head">
+          <span class="job-title">Associate Software Engineer</span>
+          <span class="job-date">JUL 2024 — MAY 2025</span>
+        </div>
+        <div class="job-org">Invendis Technologies India Pvt. Ltd. · Bengaluru</div>
+        <ul>
+          <li>Owned design, implementation, testing, and deployment for core Django web modules.</li>
+          <li>Designed multi-tenant MySQL schemas for 3 client environments and wrote unit tests reaching 85% coverage, cutting regressions by ~25%.</li>
+          <li>Automated OpenVPN certificate provisioning with Python/Bash, cutting new environment setup from 2 hours to 20 minutes.</li>
+        </ul>
+      </div>
+
+      <div class="job">
+        <div class="job-head">
+          <span class="job-title">Full-Stack Web Development Intern (Python/Django)</span>
+          <span class="job-date">JUL 2023 — FEB 2024</span>
+        </div>
+        <div class="job-org">VCube Technologies · Hyderabad</div>
+        <ul>
+          <li>Worked as backend developer on a student/employee management system built with Django and React, following Agile development and testing practices.</li>
+          <li>Built signup/login authentication, attendance record maintenance, and marks-list management modules.</li>
+          <li>Implemented data export functionality allowing teachers to share attendance and marks details with parents in the required format.</li>
+          <li>Contributed to project documentation and presentation materials to support team communication and delivery.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="section-label">PROJECTS</div>
+      <h2>From my GitHub</h2>
+
+      <div class="projects">
+        <div class="proj">
+          <div class="proj-top">
+            <span class="proj-name">Netflix-Movies-TV-Shows</span>
+            <a href="https://github.com/DevBhargav07/Netflix-Movies-TV-Shows" target="_blank" rel="noopener" class="proj-link">view repo →</a>
+          </div>
+          <p class="proj-desc">
+            End-to-end exploratory data analysis on 8,800+ Netflix titles. Cleaned
+            missing values and types, answered 5 business questions with groupby
+            and statistical methods, and visualized findings across 6 chart types —
+            uncovering that 69.6% of content is movies and India ranks #2 for content production.
+          </p>
+          <div class="proj-tags">
+            <span class="tag">Python</span><span class="tag">Pandas</span>
+            <span class="tag">Matplotlib</span><span class="tag">Seaborn</span>
+            <span class="tag">Jupyter</span>
+          </div>
+        </div>
+
+        <div class="proj">
+          <div class="proj-top">
+            <span class="proj-name">VPN Provisioning Automation</span>
+            <a href="https://github.com/DevBhargav07" target="_blank" rel="noopener" class="proj-link">view repo →</a>
+          </div>
+          <p class="proj-desc">
+            Automated OpenVPN certificate generation and assignment for a pool of
+            developers — static-IP-based cert issuance plus lifecycle management
+            (generate, validate, revoke) using Python and Bash. Reduced manual
+            provisioning effort by 83%.
+          </p>
+          <div class="proj-tags">
+            <span class="tag">Python</span><span class="tag">Bash</span><span class="tag">OpenVPN</span>
+          </div>
+        </div>
+
+        <div class="proj">
+          <div class="proj-top">
+            <span class="proj-name">House-Prices</span>
+            <a href="https://github.com/DevBhargav07/House-Prices" target="_blank" rel="noopener" class="proj-link">view repo →</a>
+          </div>
+          <p class="proj-desc">
+            Internship project predicting house prices with regression models —
+            covering feature preparation, model fitting, and evaluation on a
+            real-world housing dataset.
+          </p>
+          <div class="proj-tags">
+            <span class="tag">Python</span><span class="tag">Jupyter Notebook</span><span class="tag">Regression</span>
+          </div>
+        </div>
+
+        <div class="proj">
+          <div class="proj-top">
+            <span class="proj-name">VideoAudioDownloader</span>
+            <a href="https://github.com/DevBhargav07/VideoAudioDownloader" target="_blank" rel="noopener" class="proj-link">view repo →</a>
+          </div>
+          <p class="proj-desc">
+            A backend application to download YouTube video/audio, built with
+            Flask on the server side and plain HTML, CSS, and JavaScript on the front end.
+          </p>
+          <div class="proj-tags">
+            <span class="tag">Flask</span><span class="tag">JavaScript</span><span class="tag">HTML/CSS</span>
+          </div>
+        </div>
+
+        <div class="proj">
+          <div class="proj-top">
+            <span class="proj-name">Python-Learning</span>
+            <a href="https://github.com/DevBhargav07/Python-Learning" target="_blank" rel="noopener" class="proj-link">view repo →</a>
+          </div>
+          <p class="proj-desc">
+            Running collection of DSA practice, LeetCode submissions, and NeetCode
+            attempts — the working log behind daily problem-solving practice.
+          </p>
+          <div class="proj-tags">
+            <span class="tag">Python</span><span class="tag">DSA</span>
+          </div>
+        </div>
+
+        <div class="proj">
+          <div class="proj-top">
+            <span class="proj-name">RockPapperSissor</span>
+            <a href="https://github.com/DevBhargav07/RockPapperSissor" target="_blank" rel="noopener" class="proj-link">view repo →</a>
+          </div>
+          <p class="proj-desc">
+            A command-line Rock-Paper-Scissors game — one of the earlier Python
+            fundamentals projects, covering control flow and simple game logic.
+          </p>
+          <div class="proj-tags">
+            <span class="tag">Python</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="platforms">
+      <div class="section-label">PRACTICE</div>
+      <h2>Sharpening the fundamentals</h2>
+      <div class="platforms">
+        <a href="https://www.hackerrank.com/profile/bhargavdevaramp1" target="_blank" rel="noopener" class="platform-card">
+          <div class="p-top">
+            <span class="p-name">HackerRank</span>
+            <span class="p-status">ACTIVE</span>
+          </div>
+          <p class="p-desc">Python and problem-solving tracks — certified Basic &amp; Intermediate.</p>
+          <span class="p-visit">visit profile →</span>
+        </a>
+        <a href="https://leetcode.com/u/VenkataBhargav/" target="_blank" rel="noopener" class="platform-card">
+          <div class="p-top">
+            <span class="p-name">LeetCode</span>
+            <span class="p-status">ACTIVE</span>
+          </div>
+          <p class="p-desc">Data structures &amp; algorithms — building interview-ready problem-solving speed.</p>
+          <span class="p-visit">visit profile →</span>
+        </a>
+        <a href="https://neetcode.io/user/SavageUruk306" target="_blank" rel="noopener" class="platform-card">
+          <div class="p-top">
+            <span class="p-name">NeetCode</span>
+            <span class="p-status">ACTIVE</span>
+          </div>
+          <p class="p-desc">Working through the roadmap for structured, pattern-based DSA practice.</p>
+          <span class="p-visit">visit profile →</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="contact-card">
+        <div class="section-label" style="justify-content:center;">CONTACT</div>
+        <h2>Let's connect</h2>
+        <p>Open to backend, API, and systems-adjacent roles. Reach out directly or find me on LinkedIn and GitHub.</p>
+
+        <div class="contact-rows">
+          <div class="copy-row" tabindex="0" role="button" data-copy="bhargavdevarampati24@gmail.com" data-label="Email">
+            <div class="cr-left">
+              <span class="cr-label">EMAIL</span>
+              <span class="cr-value">bhargavdevarampati24@gmail.com</span>
+            </div>
+            <span class="cr-btn">copy</span>
+          </div>
+          <div class="copy-row" tabindex="0" role="button" data-copy="+91-8106482936" data-label="Phone">
+            <div class="cr-left">
+              <span class="cr-label">PHONE</span>
+              <span class="cr-value">+91-8106482936</span>
+            </div>
+            <span class="cr-btn">copy</span>
+          </div>
+        </div>
+
+        <div class="social-row">
+          <a href="https://github.com/DevBhargav07" target="_blank" rel="noopener">GitHub ↗</a>
+          <a href="https://www.linkedin.com/in/venkata-bhargav-devarampati-5b3563233/" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href="mailto:bhargavdevarampati24@gmail.com">Email ↗</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    built by Bhargav · updated 2026
+  </footer>
+</main>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+  // ---- theme toggle ----
+  (function(){
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    const stored = localStorage.getItem('theme');
+    const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    if(stored === 'light' || (!stored && prefersLight)){
+      root.setAttribute('data-theme', 'light');
+    }
+    btn.addEventListener('click', () => {
+      const isLight = root.getAttribute('data-theme') === 'light';
+      if(isLight){
+        root.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        root.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  })();
+
+  // ---- font picker ----
+  (function(){
+    const root = document.documentElement;
+    const picker = document.getElementById('fontPicker');
+    const pickerBtn = document.getElementById('fontPickerBtn');
+    const pickerLabel = document.getElementById('fontPickerLabel');
+    const menu = document.getElementById('fontMenu');
+    const desktopOptions = menu.querySelectorAll('.font-option');
+    const mobileOptions = document.querySelectorAll('.mm-font-opt');
+
+    const labels = { default: 'Mono', alt: 'Grotesk' };
+
+    function applyFont(choice, persist){
+      if(choice === 'alt'){
+        root.setAttribute('data-font', 'alt');
+      } else {
+        root.removeAttribute('data-font');
+        choice = 'default';
+      }
+      pickerLabel.textContent = labels[choice];
+      desktopOptions.forEach(o => o.classList.toggle('active', o.getAttribute('data-font') === choice));
+      mobileOptions.forEach(o => o.classList.toggle('active', o.getAttribute('data-font') === choice));
+      if(persist) localStorage.setItem('font', choice);
+    }
+
+    const storedFont = localStorage.getItem('font');
+    if(storedFont) applyFont(storedFont, false);
+
+    pickerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      picker.classList.toggle('open');
+      pickerBtn.setAttribute('aria-expanded', picker.classList.contains('open'));
+    });
+    document.addEventListener('click', (e) => {
+      if(!picker.contains(e.target)){
+        picker.classList.remove('open');
+        pickerBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape'){
+        picker.classList.remove('open');
+        pickerBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    desktopOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        applyFont(opt.getAttribute('data-font'), true);
+        picker.classList.remove('open');
+        pickerBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+    mobileOptions.forEach(opt => {
+      opt.addEventListener('click', () => applyFont(opt.getAttribute('data-font'), true));
+    });
+  })();
+
+  // ---- mobile menu ----
+  (function(){
+    const menu = document.getElementById('mobileMenu');
+    const openBtn = document.getElementById('menuToggle');
+    const closeBtn = document.getElementById('menuClose');
+    function open(){ menu.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    function close(){ menu.classList.remove('open'); document.body.style.overflow = ''; }
+    openBtn.addEventListener('click', open);
+    closeBtn.addEventListener('click', close);
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+  })();
+
+  // ---- terminal boot sequence (single orchestrated hero moment) ----
+  const termBody = document.getElementById('termBody');
+  const sequence = [
+    { type: 'cmd', text: 'whoami' },
+    { type: 'out', key: 'name', val: 'Venkata Bhargav Devarampati' },
+    { type: 'cmd', text: 'cat role.txt' },
+    { type: 'out', key: 'role', val: 'Backend Software Engineer @ Invendis Technologies' },
+    { type: 'out', key: 'stack', val: 'Python · Django · DRF · MySQL · Redis · MQTT' },
+    { type: 'cmd', text: 'systemctl status availability' },
+    { type: 'out', key: 'status', val: 'active (open to opportunities)', highlight:true },
+  ];
+
+  function typeLine(el, text, speed, cb){
+    let i = 0;
+    const span = document.createElement('span');
+    el.appendChild(span);
+    const interval = setInterval(() => {
+      span.textContent += text[i];
+      i++;
+      if(i >= text.length){
+        clearInterval(interval);
+        if(cb) cb();
+      }
+    }, speed);
+  }
+
+  function runSequence(){
+    termBody.innerHTML = '';
+    let idx = 0;
+
+    function next(){
+      if(idx >= sequence.length){
+        const curLine = document.createElement('div');
+        curLine.className = 'line';
+        curLine.innerHTML = '<span class="prompt">$</span> <span class="cursor"></span>';
+        termBody.appendChild(curLine);
+        return;
+      }
+      const step = sequence[idx];
+      const line = document.createElement('div');
+      line.className = 'line';
+      termBody.appendChild(line);
+
+      if(step.type === 'cmd'){
+        const promptSpan = document.createElement('span');
+        promptSpan.className = 'prompt';
+        promptSpan.textContent = '$ ';
+        line.appendChild(promptSpan);
+        typeLine(line, step.text, 32, () => {
+          idx++;
+          setTimeout(next, 220);
+        });
+      } else {
+        line.innerHTML = `<span class="out-key">${step.key}:</span> <span class="out-val" style="${step.highlight ? 'color:var(--signal);' : ''}">${step.val}</span>`;
+        idx++;
+        setTimeout(next, 340);
+      }
+    }
+    next();
+  }
+
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    termBody.innerHTML = sequence.map(s =>
+      s.type === 'cmd'
+        ? `<div class="line"><span class="prompt">$</span> ${s.text}</div>`
+        : `<div class="line"><span class="out-key">${s.key}:</span> <span class="out-val">${s.val}</span></div>`
+    ).join('') + '<div class="line"><span class="prompt">$</span> <span class="cursor"></span></div>';
+  } else {
+    try{
+      runSequence();
+    }catch(e){
+      termBody.innerHTML = sequence.map(s =>
+        s.type === 'cmd'
+          ? `<div class="line"><span class="prompt">$</span> ${s.text}</div>`
+          : `<div class="line"><span class="out-key">${s.key}:</span> <span class="out-val">${s.val}</span></div>`
+      ).join('') + '<div class="line"><span class="prompt">$</span> <span class="cursor"></span></div>';
+    }
+  }
+
+  // ---- copy to clipboard ----
+  const toast = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
+
+  document.querySelectorAll('.copy-row').forEach(row => {
+    function doCopy(){
+      const val = row.getAttribute('data-copy');
+      const label = row.getAttribute('data-label');
+      if(navigator.clipboard && window.isSecureContext){
+        navigator.clipboard.writeText(val).then(() => showToast(`${label} copied`));
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = val;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        let copied = false;
+        try { copied = document.execCommand('copy'); } catch(e){ copied = false; }
+        document.body.removeChild(ta);
+        showToast(copied ? `${label} copied` : `Couldn't copy — copy manually`);
+      }
+    }
+    row.addEventListener('click', doCopy);
+    row.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); doCopy(); }
+    });
+  });
+</script>
+
+</body>
+</html>

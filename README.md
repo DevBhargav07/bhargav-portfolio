@@ -1,2 +1,2 @@
 # portfolio
-A portfolio of mine
+A porfolio website which describes me visually

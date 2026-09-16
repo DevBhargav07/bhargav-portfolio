@@ -384,9 +384,10 @@
     <section class="hero">
       <h1>Backend systems that hold up under <span class="accent">real load.</span></h1>
       <p class="lede">
-        I'm Bhargav — a backend software engineer building APIs, real-time
-        telemetry pipelines, and infrastructure automation with Python and
-        Django. Currently at Invendis Technologies, Bengaluru.
+        I'm Bhargav — a backend software engineer working on APIs and
+        real-time telemetry pipelines, and automating the infrastructure
+        behind them, using Python and Django. Currently at Invendis
+        Technologies, Bengaluru.
       </p>
       <div class="cta-row">
         <a href="#projects" class="btn primary">View projects</a>
@@ -396,7 +397,7 @@
 
       <div class="stats">
         <div class="stat"><div class="num">2.8</div><div class="lbl">years experience</div></div>
-        <div class="stat"><div class="num">500+</div><div class="lbl">devices in prod</div></div>
+        <div class="stat"><div class="num">1000+</div><div class="lbl">devices in prod</div></div>
         <div class="stat"><div class="num">85%</div><div class="lbl">test coverage</div></div>
         <div class="stat"><div class="num">3</div><div class="lbl">platforms training</div></div>
       </div>
@@ -436,6 +437,10 @@
         <span class="stack-pill">Linux</span>
         <span class="stack-pill">OpenVPN</span>
         <span class="stack-pill">Git</span>
+        <span class="stack-pill">GitHub</span>
+        <span class="stack-pill">GitLab</span>
+        <span class="stack-pill">FastAPI</span>
+        <span class="stack-pill">Websockets</span>
       </div>
     </section>
 
@@ -452,6 +457,7 @@
           <li>Built a real-time IoT monitoring platform in Django/DRF handling telemetry from 500+ devices, with API latency under 200ms.</li>
           <li>Optimised MySQL schemas and added Celery/Redis pipelines, boosting query performance by 40% and API responsiveness by ~35%.</li>
           <li>Implemented MQTT-based messaging and role-based access control with 3+ permission tiers, improving data reliability and securing multi-user access.</li>
+          <li>Implemented full-duplex WebSocket communication between edge devices and the backend service, delivering instant notifications and live execution updates directly to connected users.</li>
           <li>Automated generation and assignment of OpenVPN certificates for a pool of developers, reducing provisioning effort by 83%.</li>
         </ul>
       </div>
@@ -488,22 +494,22 @@
       <h2>Currently developing</h2>
       <div class="about-text">
         <p>
-          I'm extending my backend fundamentals into <strong>FastAPI</strong> and
-          <strong>asynchronous programming</strong>, building a working understanding
-          of async request handling, dependency injection, and non-blocking I/O
-          patterns as a complement to my synchronous Django experience.
+          Django at work is all synchronous, so I've been learning
+          <strong>FastAPI</strong> on the side to get comfortable with
+          <strong>asynchronous programming</strong> — async request handling,
+          dependency injection, and non-blocking I/O, the parts that don't
+          really come up in a typical Django project.
         </p>
         <p>
-          Alongside this, I'm working with <strong>SQLAlchemy</strong> for ORM-based
-          data modeling and <strong>SQLite</strong> for lightweight, embedded
-          persistence — building small services end-to-end to reinforce schema
-          design, query construction, and connection handling outside a Django-managed
-          context.
+          I'm pairing that with <strong>SQLAlchemy</strong> and
+          <strong>SQLite</strong>, building small services from scratch so I'm
+          designing the schema, writing the queries, and managing the database
+          connection myself instead of relying on Django's ORM to handle it.
         </p>
         <p>
-          The goal is a solid, professional grounding in both synchronous and
-          asynchronous backend architectures, so I can reason clearly about which
-          approach fits a given system's concurrency and performance requirements.
+          The point is being able to pick the right tool for the job — knowing
+          when a synchronous framework is the simpler choice and when async
+          actually earns its complexity.
         </p>
       </div>
       <div class="stack-strip">
@@ -559,9 +565,9 @@
           <span class="proj-link">view repo →</span>
         </div>
         <p class="proj-desc">
-          Internship project predicting house prices with regression
-          models — covering feature preparation, model fitting, and
-          evaluation on a real-world housing dataset.
+          An internship project on predicting house prices with regression
+          models, working through a real-world housing dataset from raw data
+          to a trained, evaluated model.
         </p>
         <div class="proj-tags">
           <span class="pill">Python</span><span class="pill">Jupyter Notebook</span><span class="pill">Regression</span>

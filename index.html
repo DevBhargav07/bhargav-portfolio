@@ -209,6 +209,10 @@
     transition:border-color 0.2s, color 0.2s;
   }
   .stack-pill:hover{border-color:var(--amber); color:var(--text);}
+  .stack-pill.soft{border-style:dashed; color:var(--text-faint);}
+  .also{margin-top:36px; padding-top:24px; border-top:1px solid var(--line);}
+  .also-label{font-size:12px; font-weight:600; color:var(--text-faint); margin-bottom:8px;}
+  .also p{font-size:14px; color:var(--text-dim); margin-bottom:0; max-width:56ch;}
 
   /* ---------- experience ---------- */
   .job{
@@ -423,8 +427,7 @@
         </p>
         <p>
           Outside of work, I'm sharpening algorithmic problem-solving on
-          HackerRank, LeetCode, and NeetCode, alongside hands-on machine
-          learning fundamentals with Pandas and NumPy.
+          HackerRank, LeetCode, and NeetCode.
         </p>
       </div>
       <div class="stack-strip">
@@ -440,7 +443,7 @@
         <span class="stack-pill">GitHub</span>
         <span class="stack-pill">GitLab</span>
         <span class="stack-pill">FastAPI</span>
-        <span class="stack-pill">Websockets</span>
+        <span class="stack-pill">WebSockets</span>
       </div>
     </section>
 
@@ -502,7 +505,7 @@
         </p>
         <p>
           I'm pairing that with <strong>SQLAlchemy</strong> and
-          <strong>Postgres SQL</strong>, building small services from scratch so I'm
+          <strong>PostgreSQL</strong>, building small services from scratch so I'm
           designing the schema, writing the queries, and managing the database
           connection myself instead of relying on Django's ORM to handle it.
         </p>
@@ -516,33 +519,48 @@
         <span class="stack-pill">FastAPI</span>
         <span class="stack-pill">Async / Await</span>
         <span class="stack-pill">SQLAlchemy</span>
-        <span class="stack-pill">Postgres SQL</span>
+        <span class="stack-pill">PostgreSQL</span>
         <span class="stack-pill">Pydantic</span>
         <span class="stack-pill">JWT</span>
+      </div>
+
+      <div class="also">
+        <div class="also-label">Also exploring</div>
+        <p>
+          I use AI tools every day while building, and I'm learning the
+          machine learning fundamentals behind them, mainly so I can add
+          AI features to backend services down the line.
+        </p>
+        <div class="stack-strip">
+          <span class="stack-pill soft">AI-assisted development</span>
+          <span class="stack-pill soft">Machine learning basics</span>
+          <span class="stack-pill soft">LLM integration</span>
+        </div>
       </div>
     </section>
 
     <section id="projects">
       <h2>From my GitHub</h2>
 
-      <a href="https://github.com/DevBhargav07/Netflix-Movies-TV-Shows" target="_blank" rel="noopener" class="proj tilt" style="display:block;">
+      <a href="https://github.com/DevBhargav07/project" target="_blank" rel="noopener" class="proj tilt" style="display:block;">
         <div class="proj-top">
-          <span class="proj-name">Netflix-Movies-TV-Shows</span>
+          <span class="proj-name">Real-time Chat App</span>
           <span class="proj-link">view repo →</span>
         </div>
         <p class="proj-desc">
-          End-to-end exploratory data analysis on 8,800+ Netflix titles.
-          Cleaned missing values and types, answered 5 business questions
-          with groupby and statistical methods, and visualized findings
-          across 6 chart types — uncovering that 69.6% of content is movies
-          and India ranks #2 for content production.
+          A chat application with a FastAPI backend and a React frontend.
+          Messages are delivered over WebSockets, each user chooses who can
+          see them (everyone or only selected regions), and messages expire
+          after 24 hours. Data lives in PostgreSQL through SQLAlchemy, with
+          Alembic handling the migrations.
         </p>
         <div class="proj-tags">
-          <span class="pill">Python</span><span class="pill">Pandas</span>
-          <span class="pill">Matplotlib</span><span class="pill">Seaborn</span>
-          <span class="pill">Jupyter</span>
+          <span class="pill">FastAPI</span><span class="pill">React</span>
+          <span class="pill">WebSockets</span><span class="pill">SQLAlchemy</span>
+          <span class="pill">Alembic</span><span class="pill">PostgreSQL</span>
         </div>
       </a>
+
 
       <a href="https://github.com/DevBhargav07" target="_blank" rel="noopener" class="proj tilt" style="display:block;">
         <div class="proj-top">
@@ -560,20 +578,6 @@
         </div>
       </a>
 
-      <a href="https://github.com/DevBhargav07/House-Prices" target="_blank" rel="noopener" class="proj tilt" style="display:block;">
-        <div class="proj-top">
-          <span class="proj-name">House-Prices</span>
-          <span class="proj-link">view repo →</span>
-        </div>
-        <p class="proj-desc">
-          An internship project on predicting house prices with regression
-          models, working through a real-world housing dataset from raw data
-          to a trained, evaluated model.
-        </p>
-        <div class="proj-tags">
-          <span class="pill">Python</span><span class="pill">Jupyter Notebook</span><span class="pill">Regression</span>
-        </div>
-      </a>
 
       <a href="https://github.com/DevBhargav07/VideoAudioDownloader" target="_blank" rel="noopener" class="proj tilt" style="display:block;">
         <div class="proj-top">

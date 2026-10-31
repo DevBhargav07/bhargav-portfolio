@@ -17,6 +17,7 @@
     --text-faint:#616266;
     --amber:#e8a13d;
     --amber-dim:#b9812f;
+    --amber-text:#e8a13d;
     --line:#26272b;
     --line-bright:#38393e;
     --sans:'Inter', -apple-system, sans-serif;
@@ -32,6 +33,7 @@
     --text-faint:#8a8a8d;
     --amber:#c07d1f;
     --amber-dim:#a06718;
+    --amber-text:#9a6212;
     --line:#e3e2df;
     --line-bright:#cfcecb;
     --nav-blur-bg:rgba(250,250,249,0.85);
@@ -58,21 +60,83 @@
   a{color:inherit; text-decoration:none;}
   ::selection{background:var(--amber); color:#1a1200;}
 
-  /* ---------- reading-progress rail: a real, meaningful indicator ---------- */
-  .progress-rail{
+  /* ---------- pipeline rail: real scroll progress, shown as a data pipeline ---------- */
+  .pipeline{
     position:fixed;
-    left:0; top:0;
-    width:3px;
-    height:100vh;
+    left:18px; top:88px; bottom:32px;
+    width:0;
+    z-index:55;
+    pointer-events:none;
+  }
+  .pipe-line{
+    position:absolute; left:0; top:0; bottom:0;
+    width:2px; margin-left:-1px;
     background:var(--line);
-    z-index:60;
+    border-radius:2px;
   }
-  .progress-fill{
-    width:100%;
-    height:0%;
+  .pipe-fill{
+    width:100%; height:0;
+    border-radius:2px;
+    background:repeating-linear-gradient(to bottom, var(--amber) 0 8px, color-mix(in srgb, var(--amber) 35%, transparent) 8px 14px);
+    background-size:100% 14px;
+    animation:pipeflow 0.9s linear infinite;
+    transition:height 0.12s linear;
+  }
+  @keyframes pipeflow{ to{ background-position:0 14px; } }
+  .pipe-packet{
+    position:absolute; left:0; top:0;
+    width:10px; height:10px; margin:-5px 0 0 -5px;
+    border-radius:50%;
     background:var(--amber);
-    transition:height 0.1s linear;
+    box-shadow:0 0 10px var(--amber), 0 0 22px color-mix(in srgb, var(--amber) 55%, transparent);
+    transition:top 0.12s linear;
   }
+  .pipe-node{
+    position:absolute; left:0;
+    width:22px; height:22px; margin:-11px 0 0 -11px;
+    pointer-events:auto;
+    display:block;
+  }
+  .pipe-dot{
+    position:absolute; left:50%; top:50%;
+    width:9px; height:9px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--line-bright);
+    transition:background 0.25s, border-color 0.25s;
+  }
+  .pipe-node.reached .pipe-dot{background:var(--amber); border-color:var(--amber);}
+  .pipe-node.current .pipe-dot{animation:nodepulse 2.4s ease-out infinite;}
+  @keyframes nodepulse{
+    0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--amber) 45%, transparent); }
+    100%{ box-shadow:0 0 0 9px transparent; }
+  }
+  .pipe-label{
+    display:none;
+    position:absolute; left:20px; top:50%;
+    transform:translateY(-50%);
+    white-space:nowrap;
+    line-height:1.25;
+  }
+  .pl-main{display:block; font-size:11.5px; font-weight:600; color:var(--text-faint); transition:color 0.25s;}
+  .pl-sub{display:block; font-size:10.5px; color:var(--text-faint); opacity:0.8;}
+  .pipe-node.reached .pl-main{color:var(--text-dim);}
+  .pipe-node.current .pl-main{color:var(--amber-text);}
+  .pipe-node:hover .pl-main{color:var(--text);}
+  @media (min-width:1100px){ .pipe-label{display:block;} }
+  @media (max-width:600px){ .pipeline{left:8px;} }
+
+  /* ---------- faint data lines behind the page ---------- */
+  .flowbg{position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none;}
+  .fl{stroke:var(--amber); stroke-width:1; opacity:0.07;}
+  html[data-theme="light"] .fl{opacity:0.10;}
+  .fl1{stroke-dasharray:2 16; animation:flowdash1 3s linear infinite;}
+  .fl2{stroke-dasharray:2 22; animation:flowdash2 4.5s linear infinite;}
+  .fl3{stroke-dasharray:2 12; animation:flowdash3 6s linear infinite;}
+  @keyframes flowdash1{ to{ stroke-dashoffset:-36; } }
+  @keyframes flowdash2{ to{ stroke-dashoffset:-48; } }
+  @keyframes flowdash3{ to{ stroke-dashoffset:-28; } }
 
   /* ---------- cursor-follow glow: responds to the user, not decorative ---------- */
   .cursor-glow{
@@ -214,30 +278,99 @@
   .also-label{font-size:12px; font-weight:600; color:var(--text-faint); margin-bottom:8px;}
   .also p{font-size:14px; color:var(--text-dim); margin-bottom:0; max-width:56ch;}
 
-  /* ---------- experience ---------- */
-  .job{
-    padding:24px 0;
-    border-bottom:1px solid var(--line);
+  /* ---------- experience: a real timeline, like a request trace ---------- */
+  .trace-hint{font-size:13px; color:var(--text-faint); margin:-14px 0 22px;}
+  .trace{
+    --trace-pad:20px; --trace-info:220px; --trace-gap:16px; --trace-chev:18px;
+    --tl:calc(var(--trace-pad) + var(--trace-info) + var(--trace-gap));
+    --tr:calc(var(--trace-pad) + var(--trace-chev) + var(--trace-gap));
+    position:relative;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:var(--bg-raised);
+    overflow:hidden;
   }
-  .job:last-child{border-bottom:none;}
-  .job-head{display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; margin-bottom:4px;}
-  .job-title{font-weight:700; font-size:16px;}
-  .job-date{font-size:12px; color:var(--amber);}
-  .job-org{font-size:13.5px; color:var(--text-dim); margin-bottom:14px;}
-  .job ul{list-style:none;}
-  .job li{
+  .trace-axis{position:relative; height:32px; border-bottom:1px solid var(--line);}
+  .trace-ticks{position:absolute; top:0; bottom:0; left:var(--tl); right:var(--tr);}
+  .tick{
+    position:absolute; top:9px;
+    transform:translateX(5px);
+    font-size:10.5px; color:var(--text-faint);
+    white-space:nowrap;
+  }
+  .tick.t-last{transform:translateX(calc(-100% - 5px)); color:var(--amber-text);}
+  .row-grid{position:absolute; top:0; bottom:0; left:var(--tl); right:var(--tr); pointer-events:none;}
+  .gl{position:absolute; top:0; bottom:0; width:1px; background:var(--line); opacity:0.7;}
+
+  .trace-row{border-top:1px solid var(--line); position:relative;}
+  .trace-row:first-of-type{border-top:none;}
+  .trace-row summary{
+    list-style:none;
+    display:grid;
+    grid-template-columns:var(--trace-info) 1fr var(--trace-chev);
+    column-gap:var(--trace-gap);
+    align-items:center;
+    padding:16px var(--trace-pad);
+    cursor:pointer;
+    position:relative;
+    transition:background 0.2s;
+  }
+  .trace-row summary::-webkit-details-marker{display:none;}
+  .trace-row summary:hover{background:color-mix(in srgb, var(--text) 3%, transparent);}
+  .trace-row summary:focus-visible{outline:2px solid var(--amber); outline-offset:-2px;}
+  .tr-info{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .tr-title{font-weight:700; font-size:14.5px; line-height:1.3; color:var(--text);}
+  .tr-meta{font-size:12px; color:var(--text-dim); line-height:1.35;}
+  .tr-date{font-size:11.5px; color:var(--amber-text);}
+  .tr-track{position:relative; z-index:1; height:24px; display:block;}
+  .tr-bar{
+    position:absolute; top:3px; bottom:3px;
+    left:calc(var(--s) * 1%);
+    width:calc(var(--w) * 1%);
+    min-width:6px;
+    border-radius:5px;
+    background:color-mix(in srgb, var(--amber) 55%, var(--bg-raised));
+    transition:background 0.2s, box-shadow 0.2s;
+  }
+  .trace-row summary:hover .tr-bar, .trace-row[open] .tr-bar{background:var(--amber);}
+  .tr-bar.live::after{
+    content:'';
+    position:absolute; right:-4px; top:50%;
+    width:8px; height:8px; margin-top:-4px;
+    border-radius:50%;
+    background:var(--amber);
+    animation:livepulse 2s ease-out infinite;
+  }
+  @keyframes livepulse{
+    0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--amber) 55%, transparent); }
+    100%{ box-shadow:0 0 0 10px transparent; }
+  }
+  .tr-chev{font-size:12px; color:var(--text-faint); text-align:center; transition:transform 0.2s;}
+  .trace-row[open] .tr-chev{transform:rotate(180deg);}
+  .trace-body{padding:2px var(--trace-pad) 20px; animation:tracein 0.25s ease-out;}
+  @keyframes tracein{ from{ opacity:0; transform:translateY(-4px); } to{ opacity:1; transform:none; } }
+  .trace-body ul{list-style:none;}
+  .trace-body li{
     font-size:14px;
     color:var(--text-dim);
     padding-left:18px;
     position:relative;
     margin-bottom:9px;
   }
-  .job li::before{
+  .trace-body li:last-child{margin-bottom:0;}
+  .trace-body li::before{
     content:'';
     position:absolute; left:0; top:7px;
     width:5px; height:5px;
     border-radius:50%;
     background:var(--text-faint);
+  }
+
+  @media (max-width:640px){
+    .trace{ --tl:var(--trace-pad); --tr:var(--trace-pad); }
+    .row-grid{display:none;}
+    .trace-row summary{grid-template-columns:1fr var(--trace-chev); row-gap:12px;}
+    .tr-track{grid-column:1 / -1; grid-row:2;}
   }
 
   /* ---------- projects: tilt responds to cursor position, real feedback ---------- */
@@ -257,7 +390,7 @@
   .proj-name{font-weight:700; font-size:15.5px;}
   .proj-link{
     font-size:12px;
-    color:var(--amber);
+    color:var(--amber-text);
     white-space:nowrap;
     border-bottom:1px solid transparent;
     transition:border-color 0.15s;
@@ -287,7 +420,7 @@
   .platform-row:hover{padding-left:8px;}
   .pf-name{font-weight:700; font-size:14.5px;}
   .pf-desc{font-size:12.5px; color:var(--text-dim); margin-top:2px;}
-  .pf-arrow{color:var(--amber); font-size:13px; flex-shrink:0; padding-left:16px;}
+  .pf-arrow{color:var(--amber-text); font-size:13px; flex-shrink:0; padding-left:16px;}
 
   /* ---------- contact ---------- */
   .contact-card{
@@ -321,7 +454,7 @@
   .cr-action{
     font-size:11.5px;
     font-weight:600;
-    color:var(--amber);
+    color:var(--amber-text);
     flex-shrink:0;
     padding-left:12px;
     display:flex;
@@ -359,7 +492,22 @@
 </head>
 <body>
 
-<div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+<svg class="flowbg" aria-hidden="true" focusable="false">
+  <line class="fl fl1" x1="0" y1="24%" x2="100%" y2="24%"/>
+  <line class="fl fl2" x1="0" y1="58%" x2="100%" y2="58%"/>
+  <line class="fl fl3" x1="0" y1="84%" x2="100%" y2="84%"/>
+</svg>
+
+<nav class="pipeline" id="pipeline" aria-label="Page sections">
+  <div class="pipe-line">
+    <div class="pipe-fill" id="pipeFill"></div>
+    <div class="pipe-packet" id="pipePacket" aria-hidden="true"></div>
+  </div>
+  <a class="pipe-node" href="#about" data-target="about" title="About"><span class="pipe-dot"></span><span class="pipe-label"><span class="pl-main">Ingest</span><span class="pl-sub">about</span></span></a>
+  <a class="pipe-node" href="#experience" data-target="experience" title="Experience"><span class="pipe-dot"></span><span class="pipe-label"><span class="pl-main">Process</span><span class="pl-sub">experience</span></span></a>
+  <a class="pipe-node" href="#projects" data-target="projects" title="Projects"><span class="pipe-dot"></span><span class="pipe-label"><span class="pl-main">Store</span><span class="pl-sub">projects</span></span></a>
+  <a class="pipe-node" href="#contact" data-target="contact" title="Contact"><span class="pipe-dot"></span><span class="pipe-label"><span class="pl-main">Serve</span><span class="pl-sub">contact</span></span></a>
+</nav>
 <div class="cursor-glow" id="cursorGlow"></div>
 
 <header class="topnav">
@@ -449,47 +597,73 @@
 
     <section id="experience">
       <h2>Where I've worked</h2>
+      <p class="trace-hint">Each bar is a role on a real timeline. Click a row to open it.</p>
 
-      <div class="job">
-        <div class="job-head">
-          <span class="job-title">Software Engineer</span>
-          <span class="job-date">May 2025 — Present</span>
-        </div>
-        <div class="job-org">Invendis Technologies India Pvt. Ltd. · Bengaluru</div>
-        <ul>
+      <div class="trace" id="trace">
+        <div class="trace-axis"><div class="trace-ticks" id="traceTicks"><span class="tick t-first" style="left:0%">Jul 2023</span><span class="tick" style="left:15.11%">2024</span><span class="tick" style="left:45.16%">2025</span><span class="tick" style="left:75.12%">2026</span><span class="tick t-last" style="left:100%">Now</span></div></div>
+      <details class="trace-row" open data-start="2025-05" data-end="present">
+        <summary>
+          <span class="row-grid" aria-hidden="true"><span class="gl" style="left:0%"></span><span class="gl" style="left:15.11%"></span><span class="gl" style="left:45.16%"></span><span class="gl" style="left:75.12%"></span><span class="gl" style="left:100%"></span></span>
+          <span class="tr-info">
+            <span class="tr-title">Software Engineer</span>
+            <span class="tr-meta">Invendis Technologies India Pvt. Ltd.</span>
+            <span class="tr-meta">Bengaluru</span>
+            <span class="tr-date">May 2025 — Present</span>
+          </span>
+          <span class="tr-track"><span class="tr-bar live" style="--s:55.01; --w:44.99"></span></span>
+          <span class="tr-chev" aria-hidden="true">▾</span>
+        </summary>
+        <div class="trace-body">
+          <ul>
           <li>Built a real-time IoT monitoring platform in Django/DRF handling telemetry from 500+ devices, with API latency under 200ms.</li>
           <li>Optimised MySQL schemas and added Celery/Redis pipelines, boosting query performance by 40% and API responsiveness by ~35%.</li>
           <li>Implemented MQTT-based messaging and role-based access control with 3+ permission tiers, improving data reliability and securing multi-user access.</li>
           <li>Implemented full-duplex WebSocket communication between edge devices and the backend service, delivering instant notifications and live execution updates directly to connected users.</li>
           <li>Automated generation and assignment of OpenVPN certificates for a pool of developers, reducing provisioning effort by 83%.</li>
         </ul>
-      </div>
-
-      <div class="job">
-        <div class="job-head">
-          <span class="job-title">Associate Software Engineer</span>
-          <span class="job-date">Jul 2024 — May 2025</span>
         </div>
-        <div class="job-org">Invendis Technologies India Pvt. Ltd. · Bengaluru</div>
-        <ul>
+      </details>
+      <details class="trace-row" data-start="2024-07" data-end="2025-05">
+        <summary>
+          <span class="row-grid" aria-hidden="true"><span class="gl" style="left:0%"></span><span class="gl" style="left:15.11%"></span><span class="gl" style="left:45.16%"></span><span class="gl" style="left:75.12%"></span><span class="gl" style="left:100%"></span></span>
+          <span class="tr-info">
+            <span class="tr-title">Associate Software Engineer</span>
+            <span class="tr-meta">Invendis Technologies India Pvt. Ltd.</span>
+            <span class="tr-meta">Bengaluru</span>
+            <span class="tr-date">Jul 2024 — May 2025</span>
+          </span>
+          <span class="tr-track"><span class="tr-bar" style="--s:30.05; --w:24.96"></span></span>
+          <span class="tr-chev" aria-hidden="true">▾</span>
+        </summary>
+        <div class="trace-body">
+          <ul>
           <li>Owned design, implementation, testing, and deployment for core Django web modules.</li>
           <li>Designed multi-tenant MySQL schemas for 3 client environments and wrote unit tests reaching 85% coverage, cutting regressions by ~25%.</li>
           <li>Automated OpenVPN certificate provisioning with Python/Bash, cutting new environment setup from 2 hours to 20 minutes.</li>
         </ul>
-      </div>
-
-      <div class="job">
-        <div class="job-head">
-          <span class="job-title">Full-Stack Web Development Intern (Python/Django)</span>
-          <span class="job-date">Jul 2023 — Feb 2024</span>
         </div>
-        <div class="job-org">VCube Technologies · Hyderabad</div>
-        <ul>
+      </details>
+      <details class="trace-row" data-start="2023-07" data-end="2024-03">
+        <summary>
+          <span class="row-grid" aria-hidden="true"><span class="gl" style="left:0%"></span><span class="gl" style="left:15.11%"></span><span class="gl" style="left:45.16%"></span><span class="gl" style="left:75.12%"></span><span class="gl" style="left:100%"></span></span>
+          <span class="tr-info">
+            <span class="tr-title">Full-Stack Web Development Intern (Python/Django)</span>
+            <span class="tr-meta">VCube Technologies</span>
+            <span class="tr-meta">Hyderabad</span>
+            <span class="tr-date">Jul 2023 — Feb 2024</span>
+          </span>
+          <span class="tr-track"><span class="tr-bar" style="--s:0.00; --w:20.03"></span></span>
+          <span class="tr-chev" aria-hidden="true">▾</span>
+        </summary>
+        <div class="trace-body">
+          <ul>
           <li>Worked as backend developer on a student/employee management system built with Django and React, following Agile development and testing practices.</li>
           <li>Built signup/login authentication, attendance record maintenance, and marks-list management modules.</li>
           <li>Implemented data export functionality allowing teachers to share attendance and marks details with parents in the required format.</li>
           <li>Contributed to project documentation and presentation materials to support team communication and delivery.</li>
         </ul>
+        </div>
+      </details>
       </div>
     </section>
 
@@ -542,7 +716,7 @@
     <section id="projects">
       <h2>From my GitHub</h2>
 
-      <a href="https://github.com/DevBhargav07/Chat_Application" target="_blank" rel="noopener" class="proj tilt" style="display:block;">
+      <a href="https://github.com/DevBhargav07/project" target="_blank" rel="noopener" class="proj tilt" style="display:block;">
         <div class="proj-top">
           <span class="proj-name">Real-time Chat App</span>
           <span class="proj-link">view repo →</span>
@@ -710,18 +884,142 @@
     });
   })();
 
-  // ---- reading progress rail: fills based on real scroll position ----
+  // ---- pipeline rail: real scroll progress, one stage per major section ----
   (function(){
-    const fill = document.getElementById('progressFill');
-    function update(){
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      fill.style.height = Math.min(100, Math.max(0, pct)) + '%';
+    const nav = document.getElementById('pipeline');
+    if(!nav) return;
+    const fill = document.getElementById('pipeFill');
+    const packet = document.getElementById('pipePacket');
+    const nodes = Array.from(nav.querySelectorAll('.pipe-node')).map(el => ({
+      el, target: document.getElementById(el.getAttribute('data-target')), p: 0
+    }));
+    const NAV_OFFSET = 80;
+
+    function maxScroll(){
+      return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
     }
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
+    function update(){
+      const max = maxScroll();
+      const prog = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      fill.style.height = (prog * 100) + '%';
+      packet.style.top = (prog * 100) + '%';
+      let current = -1;
+      nodes.forEach((n, i) => {
+        const reached = max > 0 && prog >= n.p - 0.001;
+        n.el.classList.toggle('reached', reached);
+        if(reached) current = i;
+      });
+      nodes.forEach((n, i) => {
+        n.el.classList.toggle('current', i === current);
+        if(i === current){ n.el.setAttribute('aria-current', 'true'); }
+        else { n.el.removeAttribute('aria-current'); }
+      });
+    }
+    function layout(){
+      const max = maxScroll();
+      nodes.forEach(n => {
+        if(!n.target || max <= 0){ n.p = 0; }
+        else {
+          const top = n.target.getBoundingClientRect().top + window.scrollY;
+          n.p = Math.min(0.97, Math.max(0, (top - NAV_OFFSET) / max));
+        }
+        n.el.style.top = (n.p * 100) + '%';
+      });
+      update();
+    }
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if(ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => { update(); ticking = false; });
+    }, { passive: true });
+    window.addEventListener('resize', layout);
+    window.addEventListener('load', layout);
+    if('ResizeObserver' in window){ new ResizeObserver(layout).observe(document.body); }
+    layout();
+  })();
+
+  // ---- experience as a trace: bars placed on a real timeline up to today ----
+  (function(){
+    const trace = document.getElementById('trace');
+    if(!trace) return;
+    const rows = Array.from(trace.querySelectorAll('.trace-row'));
+    const ticksEl = document.getElementById('traceTicks');
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    function parseMonth(v){
+      if(v === 'present') return new Date();
+      const p = v.split('-');
+      return new Date(+p[0], +p[1] - 1, 1);
+    }
+    function render(){
+      const now = new Date();
+      const t0 = new Date(Math.min.apply(null, rows.map(r => parseMonth(r.getAttribute('data-start')).getTime())));
+      const total = now - t0;
+      if(!(total > 0)) return;
+      const pct = d => Math.max(0, Math.min(100, (d - t0) / total * 100));
+
+      rows.forEach(r => {
+        const s = pct(parseMonth(r.getAttribute('data-start')));
+        const e = pct(parseMonth(r.getAttribute('data-end')));
+        const bar = r.querySelector('.tr-bar');
+        bar.style.setProperty('--s', s.toFixed(2));
+        bar.style.setProperty('--w', Math.max(e - s, 0.8).toFixed(2));
+      });
+
+      const marks = [{ at: 0, label: MON[t0.getMonth()] + ' ' + t0.getFullYear(), cls: 't-first' }];
+      for(let y = t0.getFullYear() + 1; y <= now.getFullYear(); y++){
+        const d = new Date(y, 0, 1);
+        const p = pct(d);
+        if(d < now && p > 12 && p < 88){ marks.push({ at: p, label: String(y), cls: '' }); }
+      }
+      marks.push({ at: 100, label: 'Now', cls: 't-last' });
+
+      ticksEl.innerHTML = '';
+      marks.forEach(m => {
+        const t = document.createElement('span');
+        t.className = 'tick ' + m.cls;
+        t.style.left = m.at.toFixed(2) + '%';
+        t.textContent = m.label;
+        ticksEl.appendChild(t);
+      });
+      rows.forEach(r => {
+        const grid = r.querySelector('.row-grid');
+        if(!grid) return;
+        grid.innerHTML = '';
+        marks.forEach(m => {
+          const g = document.createElement('span');
+          g.className = 'gl';
+          g.style.left = m.at.toFixed(2) + '%';
+          grid.appendChild(g);
+        });
+      });
+      declutter();
+    }
+
+    // hide a middle year label if it would overlap its neighbours (first and last always stay)
+    function declutter(){
+      const labels = Array.from(ticksEl.querySelectorAll('.tick'));
+      const grids = rows.map(r => Array.from(r.querySelectorAll('.row-grid .gl')));
+      function setHidden(i, hidden){
+        labels[i].style.visibility = hidden ? 'hidden' : '';
+        grids.forEach(g => { if(g[i]) g[i].style.visibility = hidden ? 'hidden' : ''; });   // hide the line with its label
+      }
+      labels.forEach((l, i) => setHidden(i, false));
+      if(labels.length < 3) return;
+      const lastLeft = labels[labels.length - 1].getBoundingClientRect().left;
+      let prevRight = labels[0].getBoundingClientRect().right;
+      for(let i = 1; i < labels.length - 1; i++){
+        const r = labels[i].getBoundingClientRect();
+        if(r.width === 0) continue;
+        if(r.left < prevRight + 8 || r.right > lastLeft - 8){ setHidden(i, true); }
+        else { prevRight = r.right; }
+      }
+    }
+    render();
+    window.addEventListener('resize', declutter);
+    if('ResizeObserver' in window){ new ResizeObserver(declutter).observe(trace); }
   })();
 
   // ---- cursor-follow glow: only in the hero, responds to real pointer position ----
